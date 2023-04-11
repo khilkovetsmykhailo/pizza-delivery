@@ -14,14 +14,15 @@ type Pizza struct {
 }
 
 type Order struct {
-	Id       int         `json:"id"`
-	Customer User        `json:"customer"`
-	Status   OrderStatus `json:"status"`
-	Price    float32     `json:"price"`
-	Items    []OrderItem `json:"items"`
+	Id               int         `json:"id"`
+	CustomerUsername string      `json:"customer_username"`
+	Status           OrderStatus `json:"status"`
+	Price            float32     `json:"price"`
+	Items            []OrderItem `json:"items"`
 }
 
 type OrderItem struct {
-	Pizza    Pizza `json:"pizza"`
-	Quantity int   `json:"quantity"`
+	Id        int    `json:"id"`
+	PizzaName string `json:"pizza_name"`
+	Quantity  int    `json:"quantity"`
 }

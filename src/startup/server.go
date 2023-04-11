@@ -2,7 +2,7 @@ package startup
 
 import (
 	gin "github.com/gin-gonic/gin"
-	"github.com/marijakljestan/golang-web-app/src/controllers"
+	"github.com/marijakljestan/golang-web-app/src/api"
 	repository "github.com/marijakljestan/golang-web-app/src/domain/repository"
 	service "github.com/marijakljestan/golang-web-app/src/domain/service"
 	"github.com/marijakljestan/golang-web-app/src/infrastructure/persistence"
@@ -15,23 +15,36 @@ func NewServer() *Server {
 }
 
 func (server *Server) Start() {
+	pizzaRepository := server.initPizzaRepository()
+	pizzaService := server.initPizzaService(pizzaRepository)
+	pizzaHandler := api.NewPizzaController(pizzaService)
+
 	orderRepository := server.initOrderRepository()
-	orderService := server.initOrderService(orderRepository)
-	orderController := controllers.NewOrderController(orderService)
+	orderService := server.initOrderService(orderRepository, pizzaService)
+	orderHandler := api.NewOrderController(orderService)
 
 	router := gin.Default()
-	router.GET("/order/menu", orderController.GetMenu)
+	router.GET("/pizza", pizzaHandler.GetMenu)
+	router.POST("/pizza", pizzaHandler.AddPizzaToMenu)
+	router.DELETE("/pizza/:name", pizzaHandler.DeletePizzaFromMenu)
+
+	router.POST("/order", orderHandler.CreateOrder)
+	router.GET("/order/:id", orderHandler.CheckOrderStatus)
 	router.Run("localhost:8080")
 }
 
-func (server *Server) initServer() {
-
-}
-
-func (server *Server) initOrderRepository() repository.OrderRepository {
+func (server *Server) initPizzaRepository() repository.PizzaRepository {
 	return persistence.NewOrderInMemoryRepository()
 }
 
-func (server *Server) initOrderService(orderRepository repository.OrderRepository) *service.OrderService {
-	return service.NewOrderService(orderRepository)
+func (server *Server) initPizzaService(orderRepository repository.PizzaRepository) *service.PizzaService {
+	return service.NewPizzaService(orderRepository)
+}
+
+func (server *Server) initOrderRepository() repository.OrderRepository {
+	return persistence.NewOrderInmemoryRepository()
+}
+
+func (server *Server) initOrderService(orderRepository repository.OrderRepository, pizzaService *service.PizzaService) *service.OrderService {
+	return service.NewOrderService(orderRepository, pizzaService)
 }

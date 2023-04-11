@@ -7,25 +7,39 @@ import (
 
 type OrderInmemoryRepository struct{}
 
-var pizza_menu = []domain.Pizza{
-	{
-		Id:          1,
-		Name:        "Margarita",
-		Description: "Margarita description",
-		Price:       650.50,
-	},
-	{
-		Id:          2,
-		Name:        "Madjarica",
-		Description: "Madjarica description",
-		Price:       750.50,
-	},
-}
+var orders = []domain.Order{}
 
-func NewOrderInMemoryRepository() repository.OrderRepository {
+var orderIdIncrementer int = 0
+
+func NewOrderInmemoryRepository() repository.OrderRepository {
 	return &OrderInmemoryRepository{}
 }
 
-func (repository *OrderInmemoryRepository) GetMenu() ([]domain.Pizza, error) {
-	return pizza_menu, nil
+func (repository *OrderInmemoryRepository) CreateOrder(order domain.Order) (domain.Order, error) {
+	orderIdIncrementer++
+	order.Id = orderIdIncrementer
+	orders = append(orders, order)
+	return order, nil
+}
+
+func (repository *OrderInmemoryRepository) CheckOrderStatus(orderId int) (domain.OrderStatus, error) {
+	for _, v := range orders {
+		if v.Id == orderId {
+			return v.Status, nil
+		}
+	}
+	return -1, nil
+}
+
+func (repository *OrderInmemoryRepository) CancelOrder(orderId int) (domain.Order, error) {
+	var order domain.Order
+	for _, v := range orders {
+		if v.Id == orderId {
+			order := v
+			order.Status = domain.CANCELLED
+			//save order in slice
+			break
+		}
+	}
+	return order, nil
 }

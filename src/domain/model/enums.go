@@ -9,7 +9,7 @@ const (
 )
 
 const (
-	PREPAIRING OrderStatus = iota
+	IN_PREPARATION OrderStatus = iota
 	READY_TO_BE_DELIVERED
 	CANCELLED
 )
