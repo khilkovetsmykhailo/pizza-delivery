@@ -1,9 +1,10 @@
 package domain
 
 type User struct {
+	Id       int      `json:"id"`
 	Username string   `json:"username"`
 	Password string   `json:"password"`
-	UserType UserType `json:"user_type"`
+	Type     UserType `json:"type"`
 }
 
 type Pizza struct {

@@ -23,6 +23,10 @@ func (server *Server) Start() {
 	orderService := server.initOrderService(orderRepository, pizzaService)
 	orderHandler := api.NewOrderController(orderService)
 
+	userRepository := server.initUserRepository()
+	userService := server.initUserService(userRepository)
+	userHandler := api.NewUserController(userService)
+
 	router := gin.Default()
 	router.GET("/pizza", pizzaHandler.GetMenu)
 	router.POST("/pizza", pizzaHandler.AddPizzaToMenu)
@@ -30,6 +34,8 @@ func (server *Server) Start() {
 
 	router.POST("/order", orderHandler.CreateOrder)
 	router.GET("/order/:id", orderHandler.CheckOrderStatus)
+
+	router.POST("/user/register", userHandler.RegisterUser)
 	router.Run("localhost:8080")
 }
 
@@ -47,4 +53,12 @@ func (server *Server) initOrderRepository() repository.OrderRepository {
 
 func (server *Server) initOrderService(orderRepository repository.OrderRepository, pizzaService *service.PizzaService) *service.OrderService {
 	return service.NewOrderService(orderRepository, pizzaService)
+}
+
+func (server *Server) initUserRepository() repository.UserRepository {
+	return persistence.NewUserInmemoryRepository()
+}
+
+func (server *Server) initUserService(userRepository repository.UserRepository) *service.UserService {
+	return service.NewUserService(userRepository)
 }

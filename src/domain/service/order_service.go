@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/marijakljestan/golang-web-app/src/api/dto"
 	"github.com/marijakljestan/golang-web-app/src/domain/mapper"
-	domain "github.com/marijakljestan/golang-web-app/src/domain/model"
+	model "github.com/marijakljestan/golang-web-app/src/domain/model"
 	repository "github.com/marijakljestan/golang-web-app/src/domain/repository"
 )
 
@@ -20,7 +20,7 @@ func NewOrderService(orderRepository repository.OrderRepository, pizzaService *P
 	}
 }
 
-func (service *OrderService) CreateOrder(orderDto dto.OrderDto) (domain.Order, error) {
+func (service *OrderService) CreateOrder(orderDto dto.OrderDto) (model.Order, error) {
 	order := mapper.MapOrderToDomain(orderDto)
 	var orderPriceTotal float32
 	for _, v := range order.Items {
@@ -28,7 +28,7 @@ func (service *OrderService) CreateOrder(orderDto dto.OrderDto) (domain.Order, e
 		orderPriceTotal += pizza.Price * float32(v.Quantity)
 	}
 	order.Price = orderPriceTotal
-	order.Status = domain.IN_PREPARATION
+	order.Status = model.IN_PREPARATION
 
 	createdOrder, err := service.orderRepository.CreateOrder(order)
 	if err != nil {
@@ -37,7 +37,7 @@ func (service *OrderService) CreateOrder(orderDto dto.OrderDto) (domain.Order, e
 	return createdOrder, nil
 }
 
-func (service *OrderService) CheckOrderStatus(orderId int) (domain.OrderStatus, error) {
+func (service *OrderService) CheckOrderStatus(orderId int) (model.OrderStatus, error) {
 	orderStatus, err := service.orderRepository.CheckOrderStatus(orderId)
 	if err != nil {
 		fmt.Println(err)

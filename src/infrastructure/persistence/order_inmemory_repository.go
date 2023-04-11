@@ -7,7 +7,7 @@ import (
 
 type OrderInmemoryRepository struct{}
 
-var orders = []domain.Order{}
+var orders []domain.Order
 
 var orderIdIncrementer int = 0
 

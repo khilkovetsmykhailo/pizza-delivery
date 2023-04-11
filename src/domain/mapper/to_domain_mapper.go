@@ -32,3 +32,11 @@ func MapOrderItemToDomain(orderItemDto dto.OrderItemDto) model.OrderItem {
 	}
 	return orderItem
 }
+
+func MapUserToDomain(userDto dto.UserDto) model.User {
+	user := model.User{
+		Username: userDto.Username,
+		Password: userDto.Password,
+	}
+	return user
+}
