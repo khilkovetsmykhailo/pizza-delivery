@@ -34,6 +34,7 @@ func (server *Server) Start() {
 
 	router.POST("/order", orderHandler.CreateOrder)
 	router.GET("/order/:id", orderHandler.CheckOrderStatus)
+	router.PUT("/order/:id", orderHandler.CancelOrder)
 
 	router.POST("/user/register", userHandler.RegisterUser)
 	router.Run("localhost:8080")

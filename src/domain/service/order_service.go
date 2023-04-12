@@ -45,3 +45,25 @@ func (service *OrderService) CheckOrderStatus(orderId int) (model.OrderStatus, e
 
 	return orderStatus, err
 }
+
+func (service *OrderService) CancelOrder(orderId int) (model.Order, error) {
+	var order model.Order
+	if !service.checkIfOrderCanBeCancelled(orderId) {
+		return order, nil
+	}
+
+	cancelledOrder, err := service.orderRepository.CancelOrder(orderId)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return cancelledOrder, err
+}
+
+func (service *OrderService) checkIfOrderCanBeCancelled(orderId int) bool {
+	order, _ := service.orderRepository.GetById(orderId)
+
+	if order.Status == model.READY_TO_BE_DELIVERED {
+		return false
+	}
+	return true
+}

@@ -47,3 +47,18 @@ func (handler *OrderController) CheckOrderStatus(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"data": orderStatus})
 }
+
+func (handler *OrderController) CancelOrder(ctx *gin.Context) {
+	orderId, convErr := strconv.Atoi(ctx.Param("id"))
+	if convErr != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order id provided!"})
+		return
+	}
+
+	order, err := handler.orderService.CancelOrder(orderId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Order can't  be cancelled"})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"data": order})
+}

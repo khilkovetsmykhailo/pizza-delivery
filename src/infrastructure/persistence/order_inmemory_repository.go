@@ -33,11 +33,21 @@ func (repository *OrderInmemoryRepository) CheckOrderStatus(orderId int) (domain
 
 func (repository *OrderInmemoryRepository) CancelOrder(orderId int) (domain.Order, error) {
 	var order domain.Order
+	for i, v := range orders {
+		if v.Id == orderId {
+			(&orders[i]).Status = domain.CANCELLED
+			order = orders[i]
+			break
+		}
+	}
+	return order, nil
+}
+
+func (repository *OrderInmemoryRepository) GetById(orderId int) (domain.Order, error) {
+	var order domain.Order
 	for _, v := range orders {
 		if v.Id == orderId {
-			order := v
-			order.Status = domain.CANCELLED
-			//save order in slice
+			order = v
 			break
 		}
 	}
