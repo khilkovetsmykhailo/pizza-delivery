@@ -10,13 +10,13 @@ type UserInmemoryRepository struct{}
 var users = []domain.User{
 	{
 		Username: "admin",
-		Password: "admin",
-		Type:     domain.ADMIN,
+		Password: "$2a$12$4b5bv2fgn31QQboo8vjq0.w/I7iXAUDagIcCJzkDzkLXL4nFOfHgm", //admin
+		Role:     domain.ADMIN,
 	},
 	{
 		Username: "customer",
-		Password: "customer",
-		Type:     domain.CUSTOMER,
+		Password: "$2a$12$n.qmZtK5oUGyVS0ixhEncOQCoNKOKfylDkGlfGYWJ4Z7d8LrT5j2q", //customer
+		Role:     domain.CUSTOMER,
 	},
 }
 

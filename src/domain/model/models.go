@@ -4,7 +4,7 @@ type User struct {
 	Id       int      `json:"id"`
 	Username string   `json:"username"`
 	Password string   `json:"password"`
-	Type     UserType `json:"type"`
+	Role     UserRole `json:"role"`
 }
 
 type Pizza struct {

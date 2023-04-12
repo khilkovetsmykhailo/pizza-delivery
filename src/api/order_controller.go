@@ -45,7 +45,7 @@ func (handler *OrderController) CheckOrderStatus(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order id provided!"})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"data": orderStatus})
+	ctx.JSON(http.StatusOK, gin.H{"data": orderStatus.String()})
 }
 
 func (handler *OrderController) CancelOrder(ctx *gin.Context) {

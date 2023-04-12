@@ -6,6 +6,7 @@ import (
 	repository "github.com/marijakljestan/golang-web-app/src/domain/repository"
 	service "github.com/marijakljestan/golang-web-app/src/domain/service"
 	"github.com/marijakljestan/golang-web-app/src/infrastructure/persistence"
+	"github.com/marijakljestan/golang-web-app/src/middleware"
 )
 
 type Server struct{}
@@ -28,15 +29,27 @@ func (server *Server) Start() {
 	userHandler := api.NewUserController(userService)
 
 	router := gin.Default()
-	router.GET("/pizza", pizzaHandler.GetMenu)
-	router.POST("/pizza", pizzaHandler.AddPizzaToMenu)
-	router.DELETE("/pizza/:name", pizzaHandler.DeletePizzaFromMenu)
 
-	router.POST("/order", orderHandler.CreateOrder)
-	router.GET("/order/:id", orderHandler.CheckOrderStatus)
-	router.PUT("/order/:id", orderHandler.CancelOrder)
+	pizzaRoutes := router.Group("/pizza")
+	{
+		pizzaRoutes.GET("", pizzaHandler.GetMenu)
+		pizzaRoutes.POST("", middleware.AuthorizeJWT("ADMIN"), pizzaHandler.AddPizzaToMenu)
+		pizzaRoutes.DELETE("/:name", middleware.AuthorizeJWT("ADMIN"), pizzaHandler.DeletePizzaFromMenu)
+	}
 
-	router.POST("/user/register", userHandler.RegisterUser)
+	orderRoutes := router.Group("/order")
+	{
+		orderRoutes.POST("", orderHandler.CreateOrder)
+		orderRoutes.GET("/:id", orderHandler.CheckOrderStatus)
+		orderRoutes.PUT("/:id", orderHandler.CancelOrder)
+	}
+
+	userRoutes := router.Group("/user")
+	{
+		userRoutes.POST("/register", userHandler.RegisterUser)
+		userRoutes.POST("/login", userHandler.Login)
+	}
+
 	router.Run("localhost:8080")
 }
 

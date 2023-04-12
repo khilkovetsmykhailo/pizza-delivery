@@ -6,6 +6,7 @@ import (
 	"github.com/marijakljestan/golang-web-app/src/domain/mapper"
 	domain "github.com/marijakljestan/golang-web-app/src/domain/model"
 	repository "github.com/marijakljestan/golang-web-app/src/domain/repository"
+	utils "github.com/marijakljestan/golang-web-app/src/util"
 )
 
 type UserService struct {
@@ -20,7 +21,8 @@ func NewUserService(userRepository repository.UserRepository) *UserService {
 
 func (service *UserService) RegisterCustomer(userDto dto.UserDto) (string, error) {
 	user := mapper.MapUserToDomain(userDto)
-	user.Type = domain.CUSTOMER
+	user.Role = domain.CUSTOMER
+	user.Password = utils.HashPassword(user.Password)
 	username, err := service.userRepository.Save(user)
 	if err != nil {
 		fmt.Println(err)
