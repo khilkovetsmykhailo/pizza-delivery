@@ -53,3 +53,13 @@ func (repository *OrderInmemoryRepository) GetById(orderId int) (domain.Order, e
 	}
 	return order, nil
 }
+
+func (repository *OrderInmemoryRepository) UpdateOrder(order domain.Order) (domain.Order, error) {
+	for i, v := range orders {
+		if v.Id == order.Id {
+			orders[i] = order
+			break
+		}
+	}
+	return order, nil
+}

@@ -62,3 +62,18 @@ func (handler *OrderController) CancelOrder(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"data": order})
 }
+
+func (handler *OrderController) CancelOrderRegardlessStatus(ctx *gin.Context) {
+	orderId, convErr := strconv.Atoi(ctx.Param("id"))
+	if convErr != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order id provided!"})
+		return
+	}
+
+	order, err := handler.orderService.CancelOrderRegardlessStatus(orderId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"data": order})
+}

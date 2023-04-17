@@ -6,6 +6,7 @@ import (
 	"github.com/marijakljestan/golang-web-app/src/domain/mapper"
 	model "github.com/marijakljestan/golang-web-app/src/domain/model"
 	repository "github.com/marijakljestan/golang-web-app/src/domain/repository"
+	"time"
 )
 
 type OrderService struct {
@@ -21,6 +22,30 @@ func NewOrderService(orderRepository repository.OrderRepository, pizzaService *P
 }
 
 func (service *OrderService) CreateOrder(orderDto dto.OrderDto) (model.Order, error) {
+	createdOrder := service.initializeAndSaveOrder(orderDto)
+
+	ch := make(chan model.OrderStatus)
+	go func(ch chan<- model.OrderStatus) {
+		dur := 15 * time.Second
+		time.Sleep(dur)
+		if orderStatus, _ := service.CheckOrderStatus(createdOrder.Id); orderStatus != model.CANCELLED {
+			ch <- model.READY_TO_BE_DELIVERED
+		}
+		close(ch)
+	}(ch)
+
+	go func(ch <-chan model.OrderStatus) {
+		orderStatus, isChanelOpen := <-ch
+		if isChanelOpen {
+			createdOrder.Status = orderStatus
+			createdOrder, _ = service.orderRepository.UpdateOrder(createdOrder)
+		}
+	}(ch)
+
+	return createdOrder, nil
+}
+
+func (service *OrderService) initializeAndSaveOrder(orderDto dto.OrderDto) model.Order {
 	order := mapper.MapOrderToDomain(orderDto)
 	var orderPriceTotal float32
 	for _, v := range order.Items {
@@ -34,7 +59,7 @@ func (service *OrderService) CreateOrder(orderDto dto.OrderDto) (model.Order, er
 	if err != nil {
 		fmt.Println(err)
 	}
-	return createdOrder, nil
+	return createdOrder
 }
 
 func (service *OrderService) CheckOrderStatus(orderId int) (model.OrderStatus, error) {
@@ -42,14 +67,13 @@ func (service *OrderService) CheckOrderStatus(orderId int) (model.OrderStatus, e
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	return orderStatus, err
 }
 
 func (service *OrderService) CancelOrder(orderId int) (model.Order, error) {
 	var order model.Order
 	if !service.checkIfOrderCanBeCancelled(orderId) {
-		return order, nil
+		return order, fmt.Errorf("error can't be cancelled")
 	}
 
 	cancelledOrder, err := service.orderRepository.CancelOrder(orderId)
@@ -62,8 +86,16 @@ func (service *OrderService) CancelOrder(orderId int) (model.Order, error) {
 func (service *OrderService) checkIfOrderCanBeCancelled(orderId int) bool {
 	order, _ := service.orderRepository.GetById(orderId)
 
-	if order.Status == model.READY_TO_BE_DELIVERED {
+	if order.Status == model.READY_TO_BE_DELIVERED || order.Status == model.CANCELLED {
 		return false
 	}
 	return true
+}
+
+func (service *OrderService) CancelOrderRegardlessStatus(orderId int) (model.Order, error) {
+	cancelledOrder, err := service.orderRepository.CancelOrder(orderId)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return cancelledOrder, err
 }

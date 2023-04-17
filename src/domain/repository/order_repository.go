@@ -7,4 +7,5 @@ type OrderRepository interface {
 	CheckOrderStatus(orderId int) (domain.OrderStatus, error)
 	CancelOrder(orderId int) (domain.Order, error)
 	GetById(orderId int) (domain.Order, error)
+	UpdateOrder(order domain.Order) (domain.Order, error)
 }
