@@ -63,6 +63,10 @@ func (service *OrderService) initializeAndSaveOrder(orderDto dto.OrderDto) model
 }
 
 func (service *OrderService) CheckOrderStatus(orderId int) (model.OrderStatus, error) {
+	if !service.checkIfOrderCanBeCancelled(orderId) {
+		return -1, fmt.Errorf("order with provided id does not exists")
+	}
+
 	orderStatus, err := service.orderRepository.CheckOrderStatus(orderId)
 	if err != nil {
 		fmt.Println(err)
@@ -72,6 +76,9 @@ func (service *OrderService) CheckOrderStatus(orderId int) (model.OrderStatus, e
 
 func (service *OrderService) CancelOrder(orderId int) (model.Order, error) {
 	var order model.Order
+	if !service.checkIfOrderCanBeCancelled(orderId) {
+		return order, fmt.Errorf("order with provided id does not exists")
+	}
 	if !service.checkIfOrderCanBeCancelled(orderId) {
 		return order, fmt.Errorf("error can't be cancelled")
 	}
@@ -93,9 +100,25 @@ func (service *OrderService) checkIfOrderCanBeCancelled(orderId int) bool {
 }
 
 func (service *OrderService) CancelOrderRegardlessStatus(orderId int) (model.Order, error) {
+	if !service.checkIfOrderExists(orderId) {
+		return model.Order{}, fmt.Errorf("order with provided id does not exists")
+	}
+
 	cancelledOrder, err := service.orderRepository.CancelOrder(orderId)
 	if err != nil {
 		fmt.Println(err)
 	}
 	return cancelledOrder, err
+}
+
+func (service *OrderService) checkIfOrderExists(orderId int) bool {
+	order, err := service.orderRepository.GetById(orderId)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	if order.Id == 0 {
+		return false
+	}
+	return true
 }

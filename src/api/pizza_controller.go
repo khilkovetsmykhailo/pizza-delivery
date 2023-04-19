@@ -44,7 +44,7 @@ func (handler *PizzaController) AddPizzaToMenu(ctx *gin.Context) {
 }
 
 func (handler *PizzaController) DeletePizzaFromMenu(ctx *gin.Context) {
-	var pizzaName string = ctx.Param("name")
+	var pizzaName = ctx.Param("name")
 	menu, err := handler.pizzaService.DeletePizzaFromMenu(pizzaName)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Pizza not found!"})

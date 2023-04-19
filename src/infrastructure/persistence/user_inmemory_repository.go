@@ -1,6 +1,7 @@
 package persistence
 
 import (
+	"errors"
 	domain "github.com/marijakljestan/golang-web-app/src/domain/model"
 	repository "github.com/marijakljestan/golang-web-app/src/domain/repository"
 )
@@ -21,8 +22,7 @@ var users = []domain.User{
 		Role:     domain.CUSTOMER,
 	},
 }
-
-var userCounter int = 2
+var userCounter = len(users)
 
 func NewUserInmemoryRepository() repository.UserRepository {
 	return &UserInmemoryRepository{}
@@ -40,10 +40,10 @@ func (repository *UserInmemoryRepository) GetByUsername(username string) (domain
 	for _, v := range users {
 		if v.Username == username {
 			user = v
-			break
+			return user, nil
 		}
 	}
-	return user, nil
+	return user, errors.New("user with provided username does not exist")
 }
 
 func (repository *UserInmemoryRepository) GetAll() ([]domain.User, error) {

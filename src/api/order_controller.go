@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/marijakljestan/golang-web-app/src/api/dto"
 	"github.com/marijakljestan/golang-web-app/src/domain/service"
@@ -25,6 +26,8 @@ func (handler *OrderController) CreateOrder(ctx *gin.Context) {
 		return
 	}
 
+	orderDto.CustomerUsername = ctx.GetString("username")
+	fmt.Println(orderDto.CustomerUsername)
 	order, err := handler.orderService.CreateOrder(orderDto)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error while creating order!"})

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"github.com/marijakljestan/golang-web-app/src/api/dto"
 	"github.com/marijakljestan/golang-web-app/src/domain/mapper"
@@ -36,6 +37,9 @@ func (service *PizzaService) AddPizzaToMenu(pizzaDto dto.PizzaDto) ([]model.Pizz
 }
 
 func (service *PizzaService) DeletePizzaFromMenu(pizzaName string) ([]model.Pizza, error) {
+	if pizzaExists := service.checkIfPizzaExists(pizzaName); !pizzaExists {
+		return []model.Pizza{}, errors.New("pizza with provided name does not exist")
+	}
 	menu, err := service.pizzaRepository.DeletePizzaFromMenu(pizzaName)
 	if err != nil {
 		fmt.Println(err)
@@ -51,4 +55,13 @@ func (service *PizzaService) GetPizzaByName(pizzaName string) (model.Pizza, erro
 		return model.Pizza{}, err
 	}
 	return pizza, nil
+}
+
+func (service *PizzaService) checkIfPizzaExists(pizzaName string) bool {
+	_, err := service.pizzaRepository.FindPizzaByName(pizzaName)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	return true
 }

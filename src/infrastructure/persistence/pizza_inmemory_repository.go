@@ -1,6 +1,7 @@
 package persistence
 
 import (
+	"errors"
 	domain "github.com/marijakljestan/golang-web-app/src/domain/model"
 	repository "github.com/marijakljestan/golang-web-app/src/domain/repository"
 )
@@ -21,7 +22,6 @@ var pizzaMenu = []domain.Pizza{
 		Price:       750.50,
 	},
 }
-
 var pizzaIdIncrementer = len(pizzaMenu)
 
 func NewOrderInMemoryRepository() repository.PizzaRepository {
@@ -43,10 +43,10 @@ func (repository *PizzaInmemoryRepository) DeletePizzaFromMenu(pizzaName string)
 	for i, v := range pizzaMenu {
 		if v.Name == pizzaName {
 			pizzaMenu = append(pizzaMenu[:i], pizzaMenu[i+1:]...)
-			break
+			return pizzaMenu, nil
 		}
 	}
-	return pizzaMenu, nil
+	return pizzaMenu, errors.New("pizza with provided name does not exist")
 }
 
 func (repository *PizzaInmemoryRepository) FindPizzaByName(pizzaName string) (domain.Pizza, error) {
@@ -54,8 +54,8 @@ func (repository *PizzaInmemoryRepository) FindPizzaByName(pizzaName string) (do
 	for _, v := range pizzaMenu {
 		if v.Name == pizzaName {
 			pizza = v
-			break
+			return pizza, nil
 		}
 	}
-	return pizza, nil
+	return pizza, errors.New("pizza with provided name does not exist")
 }
