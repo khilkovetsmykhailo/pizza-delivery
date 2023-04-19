@@ -9,18 +9,20 @@ type UserInmemoryRepository struct{}
 
 var users = []domain.User{
 	{
+		Id:       1,
 		Username: "admin",
 		Password: "$2a$12$4b5bv2fgn31QQboo8vjq0.w/I7iXAUDagIcCJzkDzkLXL4nFOfHgm", //admin
 		Role:     domain.ADMIN,
 	},
 	{
+		Id:       2,
 		Username: "customer",
 		Password: "$2a$12$n.qmZtK5oUGyVS0ixhEncOQCoNKOKfylDkGlfGYWJ4Z7d8LrT5j2q", //customer
 		Role:     domain.CUSTOMER,
 	},
 }
 
-var userCounter int = 0
+var userCounter int = 2
 
 func NewUserInmemoryRepository() repository.UserRepository {
 	return &UserInmemoryRepository{}
@@ -33,7 +35,7 @@ func (repository *UserInmemoryRepository) Save(user domain.User) (string, error)
 	return user.Username, nil
 }
 
-func (repository UserInmemoryRepository) GetByUsername(username string) (domain.User, error) {
+func (repository *UserInmemoryRepository) GetByUsername(username string) (domain.User, error) {
 	var user domain.User
 	for _, v := range users {
 		if v.Username == username {
@@ -42,4 +44,8 @@ func (repository UserInmemoryRepository) GetByUsername(username string) (domain.
 		}
 	}
 	return user, nil
+}
+
+func (repository *UserInmemoryRepository) GetAll() ([]domain.User, error) {
+	return users, nil
 }

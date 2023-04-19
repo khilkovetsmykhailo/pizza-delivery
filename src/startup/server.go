@@ -47,11 +47,13 @@ func (server *Server) Start() {
 
 	userRoutes := router.Group("/user")
 	{
+		userRoutes.GET("", userHandler.GetAll)
 		userRoutes.POST("/register", userHandler.RegisterUser)
 		userRoutes.POST("/login", userHandler.Login)
 	}
 
 	router.Run("localhost:8080")
+
 }
 
 func (server *Server) initPizzaRepository() repository.PizzaRepository {

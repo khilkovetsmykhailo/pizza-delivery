@@ -31,7 +31,7 @@ func (handler *OrderController) CreateOrder(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": order})
+	ctx.JSON(http.StatusOK, gin.H{"order": order})
 }
 
 func (handler *OrderController) CheckOrderStatus(ctx *gin.Context) {
@@ -45,7 +45,7 @@ func (handler *OrderController) CheckOrderStatus(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order id provided!"})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"data": orderStatus.String()})
+	ctx.JSON(http.StatusOK, gin.H{"status": orderStatus.String()})
 }
 
 func (handler *OrderController) CancelOrder(ctx *gin.Context) {
@@ -60,7 +60,7 @@ func (handler *OrderController) CancelOrder(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Order can't  be cancelled"})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"data": order})
+	ctx.JSON(http.StatusOK, gin.H{"order": order})
 }
 
 func (handler *OrderController) CancelOrderRegardlessStatus(ctx *gin.Context) {
@@ -75,5 +75,5 @@ func (handler *OrderController) CancelOrderRegardlessStatus(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"data": order})
+	ctx.JSON(http.StatusOK, gin.H{"order": order})
 }

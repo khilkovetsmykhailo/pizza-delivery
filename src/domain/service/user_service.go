@@ -20,6 +20,9 @@ func NewUserService(userRepository repository.UserRepository) *UserService {
 }
 
 func (service *UserService) RegisterCustomer(userDto dto.UserDto) (string, error) {
+	if service.usernameExists(userDto.Username) {
+		return "", fmt.Errorf("user with %s username already registered", userDto.Username)
+	}
 	user := mapper.MapUserToDomain(userDto)
 	user.Role = domain.CUSTOMER
 	user.Password = utils.HashPassword(user.Password)
@@ -36,4 +39,16 @@ func (service *UserService) GetByUsername(username string) (domain.User, error) 
 		fmt.Println(err)
 	}
 	return user, err
+}
+
+func (service *UserService) GetAll() ([]domain.User, error) {
+	return service.userRepository.GetAll()
+}
+
+func (service *UserService) usernameExists(username string) bool {
+	user, _ := service.userRepository.GetByUsername(username)
+	if user.Username == username {
+		return true
+	}
+	return false
 }
