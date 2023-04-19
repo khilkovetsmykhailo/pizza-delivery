@@ -1,22 +1,22 @@
 package dto
 
 type Pizza struct {
-	Name        string  `json:"name"`
+	Name        string  `json:"name",validate:"required,max=32"`
 	Description string  `json:"description"`
-	Price       float32 `json:"price"`
+	Price       float64 `json:"price",validate:"required,numeric"`
 }
 
 type Order struct {
 	Id               int         `json:"id"`
 	CustomerUsername string      `json:"customer_username"`
 	Status           int         `json:"status"`
-	Price            float32     `json:"price"`
+	Price            float64     `json:"price"`
 	Items            []OrderItem `json:"items"`
 }
 
 type OrderItem struct {
-	PizzaName string `json:"pizza_name"`
-	Quantity  int    `json:"quantity"`
+	PizzaName string `json:"pizza_name",validate:"required"`
+	Quantity  int    `json:"quantity",validate:"required,numeric"`
 }
 
 type User struct {
@@ -43,4 +43,8 @@ type GetOrderStatusResponse struct {
 
 type CancelOrderResponse struct {
 	Order Order `json:"order"`
+}
+
+type ErrorResponse struct {
+	Error string `json:"error"`
 }

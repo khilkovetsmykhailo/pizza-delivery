@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"github.com/marijakljestan/golang-web-app/src/api/dto"
 	"github.com/marijakljestan/golang-web-app/src/domain/mapper"
@@ -21,7 +22,7 @@ func NewUserService(userRepository repository.UserRepository) *UserService {
 
 func (service *UserService) RegisterCustomer(userDto dto.UserDto) (string, error) {
 	if service.usernameExists(userDto.Username) {
-		return "", fmt.Errorf("user with %s username already registered", userDto.Username)
+		return "", errors.New(fmt.Sprintf("user with username %s already registered", userDto.Username))
 	}
 	user := mapper.MapUserToDomain(userDto)
 	user.Role = domain.CUSTOMER

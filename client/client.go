@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"github.com/marijakljestan/golang-web-app/client/dto"
 	"net/http"
+	"strconv"
 )
 
-var baseUrl string = "http://localhost:8080"
+var baseUrl = "http://localhost:8080"
 
 func RegisterUser() {
 	var username string
@@ -35,6 +36,11 @@ func RegisterUser() {
 		return
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != 201 {
+		handleErrorResponse(resp)
+		return
+	}
 
 	var registeredUser dto.User
 	err = json.NewDecoder(resp.Body).Decode(&registeredUser)
@@ -72,13 +78,18 @@ func Login() {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != 200 {
+		handleErrorResponse(resp)
+		return
+	}
+
 	var respBody dto.LoginResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(respBody.Message)
+
 	fmt.Println("Your authorization token:", respBody.Token)
 }
 
@@ -97,7 +108,6 @@ func ListMenu() {
 		fmt.Println(err)
 		return
 	}
-
 	formatAndPrintResponse(menu)
 }
 
@@ -107,15 +117,15 @@ func CreateOrder() {
 	var quantity int
 	var orderItem dto.OrderItem
 	fmt.Println("-------- Add items to your order ---------")
-	fmt.Println("--- Press any key to continue --")
 Loop:
 	for {
+		fmt.Println("--- Press any key to continue --")
 		fmt.Println("--If you want to finish ordering press 0--")
 		var choice string
 		fmt.Scan(&choice)
 		switch choice {
 		case "0":
-			fmt.Println("Finishing ordering!")
+			fmt.Println("Finishing order...")
 			break Loop
 		default:
 			fmt.Println("Pizza name: ")
@@ -139,6 +149,7 @@ Loop:
 		fmt.Println(err)
 		return
 	}
+
 	url := baseUrl + "/order"
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
@@ -146,6 +157,11 @@ Loop:
 		return
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != 201 {
+		handleErrorResponse(resp)
+		return
+	}
 
 	var createOrderResponse dto.CreateOrderResponse
 	err = json.NewDecoder(resp.Body).Decode(&createOrderResponse)
@@ -169,6 +185,11 @@ func CheckOrderStatus() {
 		return
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		handleErrorResponse(resp)
+		return
+	}
 
 	var orderStatusResponse dto.GetOrderStatusResponse
 	err = json.NewDecoder(resp.Body).Decode(&orderStatusResponse)
@@ -194,6 +215,11 @@ func CancelOrder() {
 	resp, err := client.Do(req)
 	defer resp.Body.Close()
 
+	if resp.StatusCode != 200 {
+		handleErrorResponse(resp)
+		return
+	}
+
 	var cancelOrderResponse dto.CancelOrderResponse
 	err = json.NewDecoder(resp.Body).Decode(&cancelOrderResponse)
 	if err != nil {
@@ -213,22 +239,27 @@ func AddPizza() {
 	fmt.Println("Enter description:")
 	fmt.Scan(&description)
 
-	var price float32
+	var price string
 	fmt.Println("Enter price:")
 	fmt.Scan(&price)
 
-	var token string
-	fmt.Println("Your authorization token:")
-	fmt.Scan(&token)
-	bearerToken := "Bearer " + token
+	priceConverted, err := strconv.ParseFloat(price, 64)
+	if err != nil {
+		fmt.Println("Error! Expected numeric input!")
+		return
+	}
 
+	bearerToken := getAuthorizationToken()
 	url := baseUrl + "/pizza"
 
-	reqBody, err := json.Marshal(map[string]any{
-		"name":        name,
-		"description": description,
-		"price":       price,
-	})
+	var pizza = dto.Pizza{
+		Name:        name,
+		Description: description,
+		Price:       priceConverted,
+	}
+
+	fmt.Println("Price", price)
+	reqBody, err := json.Marshal(pizza)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -240,6 +271,11 @@ func AddPizza() {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	defer resp.Body.Close()
+
+	if resp.StatusCode != 201 {
+		handleErrorResponse(resp)
+		return
+	}
 
 	var respBody dto.MenuResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
@@ -256,11 +292,7 @@ func DeletePizza() {
 	fmt.Println("Enter name of pizza you want to delete:")
 	fmt.Scan(&pizzaName)
 
-	var token string
-	fmt.Println("Your authorization token:")
-	fmt.Scan(&token)
-
-	bearerToken := "Bearer " + token
+	bearerToken := getAuthorizationToken()
 	url := fmt.Sprintf(baseUrl+"/pizza/%s", pizzaName)
 
 	req, err := http.NewRequest(http.MethodDelete, url, nil)
@@ -273,6 +305,11 @@ func DeletePizza() {
 		return
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		handleErrorResponse(resp)
+		return
+	}
 
 	var menu dto.MenuResponse
 	err = json.NewDecoder(resp.Body).Decode(&menu)
@@ -289,13 +326,9 @@ func CancelOrderRegardlessStatus() {
 	fmt.Println("Enter order id:")
 	fmt.Scan(&orderId)
 
-	var token string
-	fmt.Println("Your authorization token:")
-	fmt.Scan(&token)
-
-	bearerToken := "Bearer " + token
-
+	bearerToken := getAuthorizationToken()
 	url := fmt.Sprintf(baseUrl+"/order/%s", orderId)
+
 	req, err := http.NewRequest(http.MethodPut, url, nil)
 	if err != nil {
 		fmt.Println(err)
@@ -307,6 +340,11 @@ func CancelOrderRegardlessStatus() {
 	resp, err := client.Do(req)
 	defer resp.Body.Close()
 
+	if resp.StatusCode != 200 {
+		handleErrorResponse(resp)
+		return
+	}
+
 	var cancelOrderResponse dto.CancelOrderResponse
 	err = json.NewDecoder(resp.Body).Decode(&cancelOrderResponse)
 	if err != nil {
@@ -317,6 +355,14 @@ func CancelOrderRegardlessStatus() {
 	formatAndPrintResponse(cancelOrderResponse)
 }
 
+func getAuthorizationToken() string {
+	var token string
+	fmt.Println("Your authorization token:")
+	fmt.Scan(&token)
+	bearerToken := "Bearer " + token
+	return bearerToken
+}
+
 func formatAndPrintResponse(response any) {
 	jsonData, err := json.MarshalIndent(response, "", "    ")
 	if err != nil {
@@ -324,6 +370,17 @@ func formatAndPrintResponse(response any) {
 		return
 	}
 	fmt.Println(string(jsonData))
+}
+
+func handleErrorResponse(resp *http.Response) {
+	var responseError dto.ErrorResponse
+	err := json.NewDecoder(resp.Body).Decode(&responseError)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println()
+	fmt.Println(responseError.Error)
+	return
 }
 
 func main() {
@@ -347,7 +404,6 @@ func main() {
 func handlePrompets() int {
 	var choice string
 	fmt.Scan(&choice)
-	//utils.ClearTerminal()
 	switch choice {
 	case "1":
 		RegisterUser()

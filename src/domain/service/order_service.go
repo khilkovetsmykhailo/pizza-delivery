@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"github.com/marijakljestan/golang-web-app/src/api/dto"
 	"github.com/marijakljestan/golang-web-app/src/domain/mapper"
@@ -22,7 +23,10 @@ func NewOrderService(orderRepository repository.OrderRepository, pizzaService *P
 }
 
 func (service *OrderService) CreateOrder(orderDto dto.OrderDto) (model.Order, error) {
-	createdOrder := service.initializeAndSaveOrder(orderDto)
+	createdOrder, err := service.initializeAndSaveOrder(orderDto)
+	if err != nil {
+		return model.Order{}, err
+	}
 
 	ch := make(chan model.OrderStatus)
 	go func(ch chan<- model.OrderStatus) {
@@ -45,11 +49,15 @@ func (service *OrderService) CreateOrder(orderDto dto.OrderDto) (model.Order, er
 	return createdOrder, nil
 }
 
-func (service *OrderService) initializeAndSaveOrder(orderDto dto.OrderDto) model.Order {
+func (service *OrderService) initializeAndSaveOrder(orderDto dto.OrderDto) (model.Order, error) {
 	order := mapper.MapOrderToDomain(orderDto)
 	var orderPriceTotal float32
 	for _, v := range order.Items {
-		pizza, _ := service.pizzaService.GetPizzaByName(v.PizzaName)
+		pizza, err := service.pizzaService.GetPizzaByName(v.PizzaName)
+		if err != nil {
+			fmt.Println(err)
+			return model.Order{}, err
+		}
 		orderPriceTotal += pizza.Price * float32(v.Quantity)
 	}
 	order.Price = orderPriceTotal
@@ -59,12 +67,12 @@ func (service *OrderService) initializeAndSaveOrder(orderDto dto.OrderDto) model
 	if err != nil {
 		fmt.Println(err)
 	}
-	return createdOrder
+	return createdOrder, nil
 }
 
 func (service *OrderService) CheckOrderStatus(orderId int) (model.OrderStatus, error) {
-	if !service.checkIfOrderCanBeCancelled(orderId) {
-		return -1, fmt.Errorf("order with provided id does not exists")
+	if !service.checkIfOrderExists(orderId) {
+		return -1, errors.New("order with provided id does not exists")
 	}
 
 	orderStatus, err := service.orderRepository.CheckOrderStatus(orderId)
@@ -76,11 +84,11 @@ func (service *OrderService) CheckOrderStatus(orderId int) (model.OrderStatus, e
 
 func (service *OrderService) CancelOrder(orderId int) (model.Order, error) {
 	var order model.Order
-	if !service.checkIfOrderCanBeCancelled(orderId) {
-		return order, fmt.Errorf("order with provided id does not exists")
+	if !service.checkIfOrderExists(orderId) {
+		return order, errors.New("order with provided id does not exists")
 	}
 	if !service.checkIfOrderCanBeCancelled(orderId) {
-		return order, fmt.Errorf("error can't be cancelled")
+		return order, errors.New("error can't be cancelled")
 	}
 
 	cancelledOrder, err := service.orderRepository.CancelOrder(orderId)
@@ -101,7 +109,7 @@ func (service *OrderService) checkIfOrderCanBeCancelled(orderId int) bool {
 
 func (service *OrderService) CancelOrderRegardlessStatus(orderId int) (model.Order, error) {
 	if !service.checkIfOrderExists(orderId) {
-		return model.Order{}, fmt.Errorf("order with provided id does not exists")
+		return model.Order{}, errors.New("order with provided id does not exists")
 	}
 
 	cancelledOrder, err := service.orderRepository.CancelOrder(orderId)

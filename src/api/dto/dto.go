@@ -1,9 +1,9 @@
 package dto
 
 type PizzaDto struct {
-	Name        string  `json:"name"`
+	Name        string  `json:"name",validate:"required,max=32"`
 	Description string  `json:"description"`
-	Price       float32 `json:"price"`
+	Price       float32 `json:"price",validate:"required,numeric"`
 }
 
 type OrderDto struct {
@@ -13,8 +13,8 @@ type OrderDto struct {
 }
 
 type OrderItemDto struct {
-	PizzaName string `json:"pizza_name"`
-	Quantity  int    `json:"quantity"`
+	PizzaName string `json:"pizza_name",validate:"required,"`
+	Quantity  int    `json:"quantity",validate:"required,numeric"`
 }
 
 type UserDto struct {

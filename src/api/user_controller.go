@@ -27,7 +27,7 @@ func (handler *UserController) RegisterUser(ctx *gin.Context) {
 	}
 	username, err := handler.userService.RegisterCustomer(userDto)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusCreated, gin.H{"username": username})
@@ -41,7 +41,7 @@ func (handler *UserController) Login(ctx *gin.Context) {
 
 	user, err := handler.userService.GetByUsername(credentials.Username)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "User not found"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error! Bad credentials"})
 		return
 	}
 
@@ -50,7 +50,7 @@ func (handler *UserController) Login(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"message": "Successfully logged in", "token": token})
 		return
 	}
-	ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid credentials"})
+	ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error! Bad credentials"})
 }
 
 func (handler *UserController) GetAll(ctx *gin.Context) {

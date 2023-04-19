@@ -2,16 +2,16 @@ package domain
 
 type User struct {
 	Id       int      `json:"id"`
-	Username string   `json:"username"`
-	Password string   `json:"password"`
+	Username string   `json:"username",validate:"required"`
+	Password string   `json:"password",validate:"required"`
 	Role     UserRole `json:"role"`
 }
 
 type Pizza struct {
 	Id          int     `json:"id""`
-	Name        string  `json:"name"`
+	Name        string  `json:"name",validate:"required,max=32"`
 	Description string  `json:"description"`
-	Price       float32 `json:"price"`
+	Price       float32 `json:"price",validate:"required,numeric"`
 }
 
 type Order struct {
@@ -24,6 +24,6 @@ type Order struct {
 
 type OrderItem struct {
 	Id        int    `json:"id"`
-	PizzaName string `json:"pizza_name"`
-	Quantity  int    `json:"quantity"`
+	PizzaName string `json:"pizza_name",validate:"required"`
+	Quantity  int    `json:"quantity",validate:"required,numeric"`
 }
