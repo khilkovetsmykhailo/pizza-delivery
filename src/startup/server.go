@@ -1,18 +1,24 @@
 package startup
 
 import (
-	gin "github.com/gin-gonic/gin"
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/marijakljestan/golang-web-app/src/api"
 	repository "github.com/marijakljestan/golang-web-app/src/domain/repository"
-	service "github.com/marijakljestan/golang-web-app/src/domain/service"
+	"github.com/marijakljestan/golang-web-app/src/domain/service"
 	"github.com/marijakljestan/golang-web-app/src/infrastructure/persistence"
 	"github.com/marijakljestan/golang-web-app/src/middleware"
+	config2 "github.com/marijakljestan/golang-web-app/src/startup/config"
 )
 
-type Server struct{}
+type Server struct {
+	config *config2.Config
+}
 
-func NewServer() *Server {
-	return &Server{}
+func NewServer(config *config2.Config) *Server {
+	return &Server{
+		config: config,
+	}
 }
 
 func (server *Server) Start() {
@@ -52,8 +58,11 @@ func (server *Server) Start() {
 		userRoutes.POST("/login", userHandler.Login)
 	}
 
-	router.Run("localhost:8080")
-
+	addr := fmt.Sprintf("%s:%s", server.config.Host, server.config.Port)
+	err := router.Run(addr)
+	if err != nil {
+		fmt.Println("Error! Cannot start server.")
+	}
 }
 
 func (server *Server) initPizzaRepository() repository.PizzaRepository {
