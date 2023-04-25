@@ -58,7 +58,7 @@ func (server *Server) Start() {
 		userRoutes.POST("/login", userHandler.Login)
 	}
 
-	addr := fmt.Sprintf("%s:%s", server.config.Host, server.config.Port)
+	addr := fmt.Sprintf(":%s", server.config.Port)
 	err := router.Run(addr)
 	if err != nil {
 		fmt.Println("Error! Cannot start server.")
