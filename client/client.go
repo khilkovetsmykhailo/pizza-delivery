@@ -7,10 +7,11 @@ import (
 	"github.com/marijakljestan/golang-web-app/client/dto"
 	"github.com/marijakljestan/golang-web-app/client/store"
 	"net/http"
+	"os"
 	"strconv"
 )
 
-var baseUrl = "http://localhost:8080"
+var baseUrl = os.Getenv("SERVER_URL")
 
 func RegisterUser() {
 	var username string

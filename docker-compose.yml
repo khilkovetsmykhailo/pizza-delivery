@@ -1,25 +1,38 @@
 version: "3.3"
 
 services:
-  #pizza_server:
-  #  build:
-  #    context: .
-  #    dockerfile: Dockerfile
-  #  ports:
-  #    - "8080:8080"
-  #  environment:
-  #    SERVER_PORT: 8080
-  #    DB_HOST: mongo
-  #    DDB_PORT: 27017
-  #  restart: on-failure
-  #  depends_on:
-  #    - mongo
+  client_app:
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile
+    environment:
+      SERVER_URL: http://${SERVER_HOST}:${SERVER_PORT}
+    stdin_open: true
+    tty: true
+    restart: always
+    depends_on:
+      - server_app
+
+  server_app:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+    restart: on-failure
+    depends_on:
+      - mongo
 
   mongo:
     image: mongo
     restart: always
     ports:
-      - "27017:27017"
+      - ${DB_PORT}:${DB_PORT}
 
   mongo-express:
     image:  mongo-express
@@ -27,4 +40,4 @@ services:
     ports:
       - "8083:8081"
     environment:
-      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://${DB_HOST}:${DB_PORT}/
