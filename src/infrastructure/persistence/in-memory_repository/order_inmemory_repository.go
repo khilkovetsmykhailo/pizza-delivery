@@ -1,4 +1,4 @@
-package persistence
+package in_memory_repository
 
 import (
 	"errors"

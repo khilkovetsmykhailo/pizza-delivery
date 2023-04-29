@@ -27,14 +27,14 @@ func (service *UserService) RegisterCustomer(userDto dto.UserDto) (string, error
 	user := mapper.MapUserToDomain(userDto)
 	user.Role = domain.CUSTOMER
 	user.Password = utils.HashPassword(user.Password)
-	username, err := service.userRepository.Save(user)
+	username, err := service.userRepository.Save(&user)
 	if err != nil {
 		fmt.Println(err)
 	}
 	return username, err
 }
 
-func (service *UserService) GetByUsername(username string) (domain.User, error) {
+func (service *UserService) GetByUsername(username string) (*domain.User, error) {
 	user, err := service.userRepository.GetByUsername(username)
 	if err != nil {
 		fmt.Println(err)
@@ -42,14 +42,14 @@ func (service *UserService) GetByUsername(username string) (domain.User, error) 
 	return user, err
 }
 
-func (service *UserService) GetAll() ([]domain.User, error) {
+func (service *UserService) GetAll() ([]*domain.User, error) {
 	return service.userRepository.GetAll()
 }
 
 func (service *UserService) usernameExists(username string) bool {
 	user, _ := service.userRepository.GetByUsername(username)
-	if user.Username == username {
-		return true
+	if user == nil {
+		return false
 	}
-	return false
+	return true
 }

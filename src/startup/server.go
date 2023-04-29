@@ -6,9 +6,11 @@ import (
 	"github.com/marijakljestan/golang-web-app/src/api"
 	repository "github.com/marijakljestan/golang-web-app/src/domain/repository"
 	"github.com/marijakljestan/golang-web-app/src/domain/service"
-	"github.com/marijakljestan/golang-web-app/src/infrastructure/persistence"
+	"github.com/marijakljestan/golang-web-app/src/infrastructure/persistence/in-memory_repository"
+	"github.com/marijakljestan/golang-web-app/src/infrastructure/persistence/mongodb_store"
 	"github.com/marijakljestan/golang-web-app/src/middleware"
 	config2 "github.com/marijakljestan/golang-web-app/src/startup/config"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Server struct {
@@ -22,6 +24,8 @@ func NewServer(config *config2.Config) *Server {
 }
 
 func (server *Server) Start() {
+	mongoClient := server.initMongoClient()
+
 	pizzaRepository := server.initPizzaRepository()
 	pizzaService := server.initPizzaService(pizzaRepository)
 	pizzaHandler := api.NewPizzaController(pizzaService)
@@ -30,7 +34,8 @@ func (server *Server) Start() {
 	orderService := server.initOrderService(orderRepository, pizzaService)
 	orderHandler := api.NewOrderController(orderService)
 
-	userRepository := server.initUserRepository()
+	//userRepository := server.initUserRepository()
+	userRepository := server.initUserMongoDBStore(mongoClient)
 	userService := server.initUserService(userRepository)
 	userHandler := api.NewUserController(userService)
 
@@ -66,7 +71,7 @@ func (server *Server) Start() {
 }
 
 func (server *Server) initPizzaRepository() repository.PizzaRepository {
-	return persistence.NewOrderInMemoryRepository()
+	return in_memory_repository.NewOrderInMemoryRepository()
 }
 
 func (server *Server) initPizzaService(orderRepository repository.PizzaRepository) *service.PizzaService {
@@ -74,7 +79,7 @@ func (server *Server) initPizzaService(orderRepository repository.PizzaRepositor
 }
 
 func (server *Server) initOrderRepository() repository.OrderRepository {
-	return persistence.NewOrderInmemoryRepository()
+	return in_memory_repository.NewOrderInmemoryRepository()
 }
 
 func (server *Server) initOrderService(orderRepository repository.OrderRepository, pizzaService *service.PizzaService) *service.OrderService {
@@ -82,9 +87,22 @@ func (server *Server) initOrderService(orderRepository repository.OrderRepositor
 }
 
 func (server *Server) initUserRepository() repository.UserRepository {
-	return persistence.NewUserInmemoryRepository()
+	return in_memory_repository.NewUserInmemoryRepository()
+}
+
+func (server *Server) initUserMongoDBStore(client *mongo.Client) repository.UserRepository {
+	store := mongodb_store.NewUsersMongoDBStore(client)
+	return store
 }
 
 func (server *Server) initUserService(userRepository repository.UserRepository) *service.UserService {
 	return service.NewUserService(userRepository)
+}
+
+func (server *Server) initMongoClient() *mongo.Client {
+	client, err := mongodb_store.GetClient(server.config.DBHost, server.config.DBPort)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return client
 }

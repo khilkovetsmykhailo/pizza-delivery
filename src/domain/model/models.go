@@ -1,10 +1,14 @@
 package domain
 
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
 type User struct {
-	Id       int      `json:"id"`
-	Username string   `json:"username",validate:"required"`
-	Password string   `json:"password",validate:"required"`
-	Role     UserRole `json:"role"`
+	Id       primitive.ObjectID `bson:"_id",json:"id"`
+	Username string             `bson:"username",json:"username",validate:"required"`
+	Password string             `bson:"password",json:"password",validate:"required"`
+	Role     UserRole           `bson:"role",json:"role"`
 }
 
 type Pizza struct {
