@@ -11,7 +11,7 @@ func AuthorizeJWT(requiredRole string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		const BearerSchema string = "Bearer "
 		authHeader := ctx.GetHeader("Authorization")
-		if authHeader == "" {
+		if authHeader == "" || authHeader == "Bearer" {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "No Authorization header provided"})
 		}
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/marijakljestan/golang-web-app/client/dto"
+	"github.com/marijakljestan/golang-web-app/client/store"
 	"net/http"
 	"strconv"
 )
@@ -52,7 +53,7 @@ func RegisterUser() {
 	fmt.Println("Successfully registered with username:", registeredUser.Username)
 }
 
-func Login() {
+func Login() bool {
 	var username string
 	fmt.Println("Enter username:")
 	fmt.Scan(&username)
@@ -68,29 +69,35 @@ func Login() {
 	})
 	if err != nil {
 		fmt.Println(err)
-		return
+		return false
 	}
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		fmt.Println(err)
-		return
+		return false
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		handleErrorResponse(resp)
-		return
+		return false
 	}
 
 	var respBody dto.LoginResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return false
 	}
 
+	store.SetLoggedUser(username, respBody.Token)
 	fmt.Println("Your authorization token:", respBody.Token)
+	return true
+}
+
+func LogOut() {
+	store.SetLoggedUser("", "")
 }
 
 func ListMenu() {
@@ -149,9 +156,13 @@ Loop:
 		fmt.Println(err)
 		return
 	}
-
+	bearerToken := getAuthorizationToken()
 	url := baseUrl + "/order"
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(reqBody))
+	req.Header.Add("Authorization", bearerToken)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -356,10 +367,8 @@ func CancelOrderRegardlessStatus() {
 }
 
 func getAuthorizationToken() string {
-	var token string
-	fmt.Println("Your authorization token:")
-	fmt.Scan(&token)
-	bearerToken := "Bearer " + token
+	storedUser := store.GetLoggedUser()
+	bearerToken := "Bearer " + (*storedUser).Token
 	return bearerToken
 }
 
@@ -408,11 +417,13 @@ func handlePrompets() int {
 	case "1":
 		RegisterUser()
 	case "2":
-		Login()
-		handleCustomerChoice()
+		if successfulLogin := Login(); successfulLogin {
+			handleCustomerChoice()
+		}
 	case "3":
-		Login()
-		handleAdminChoice()
+		if successfulLogin := Login(); successfulLogin {
+			handleAdminChoice()
+		}
 	case "0":
 		return 0
 	}
@@ -428,7 +439,7 @@ func handleCustomerChoice() {
 		fmt.Println("2) Create an order")
 		fmt.Println("3) Check order status")
 		fmt.Println("4) Cancel order")
-		fmt.Println("0) BACK")
+		fmt.Println("0) Log out")
 		var choice string
 		fmt.Scan(&choice)
 		fmt.Println("-----------------------------------------")
@@ -442,6 +453,7 @@ func handleCustomerChoice() {
 		case "4":
 			CancelOrder()
 		case "0":
+			LogOut()
 			return
 		default:
 			fmt.Println("INPUT ERROR !")
@@ -458,7 +470,7 @@ func handleAdminChoice() {
 		fmt.Println("2) Add pizza")
 		fmt.Println("3) Delete pizza")
 		fmt.Println("4) Cancel order")
-		fmt.Println("0) BACK")
+		fmt.Println("0) Log out")
 		var choice string
 		fmt.Scan(&choice)
 		fmt.Println("-----------------------------------------")
@@ -472,6 +484,7 @@ func handleAdminChoice() {
 		case "4":
 			CancelOrderRegardlessStatus()
 		case "0":
+			LogOut()
 			return
 		default:
 			fmt.Println("INPUT ERROR !")

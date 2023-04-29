@@ -11,6 +11,10 @@ import (
 	"time"
 )
 
+const (
+	SLEEP_DURATION = 15 * time.Second
+)
+
 type OrderService struct {
 	orderRepository repository.OrderRepository
 	pizzaService    *PizzaService
@@ -31,10 +35,13 @@ func (service *OrderService) CreateOrder(orderDto dto.OrderDto) (model.Order, er
 
 	ch := make(chan model.OrderStatus)
 	go func(ch chan<- model.OrderStatus) {
-		dur := 15 * time.Second
-		time.Sleep(dur)
+		time.Sleep(SLEEP_DURATION)
 		if orderStatus, _ := service.CheckOrderStatus(createdOrder.Id); orderStatus != model.CANCELLED {
 			ch <- model.READY_TO_BE_DELIVERED
+		}
+		time.Sleep(SLEEP_DURATION)
+		if orderStatus, _ := service.CheckOrderStatus(createdOrder.Id); orderStatus == model.READY_TO_BE_DELIVERED {
+			ch <- model.DELIVERED
 		}
 		close(ch)
 	}(ch)

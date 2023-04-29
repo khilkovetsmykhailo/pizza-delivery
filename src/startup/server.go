@@ -52,7 +52,7 @@ func (server *Server) Start() {
 
 	orderRoutes := router.Group("/order")
 	{
-		orderRoutes.POST("", orderHandler.CreateOrder)
+		orderRoutes.POST("", middleware.AuthorizeJWT("CUSTOMER"), orderHandler.CreateOrder)
 		orderRoutes.GET("/status/:id", orderHandler.CheckOrderStatus)
 		orderRoutes.PUT("/cancel/:id", orderHandler.CancelOrder)
 		orderRoutes.PUT("/:id", middleware.AuthorizeJWT("ADMIN"), orderHandler.CancelOrderRegardlessStatus)

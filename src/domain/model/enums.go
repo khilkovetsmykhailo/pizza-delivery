@@ -14,6 +14,7 @@ const (
 	IN_PREPARATION OrderStatus = iota
 	READY_TO_BE_DELIVERED
 	CANCELLED
+	DELIVERED
 )
 
 func (role UserRole) String() string {
@@ -35,6 +36,8 @@ func (status OrderStatus) String() string {
 		return "READY_TO_BE_DELIVERED"
 	case CANCELLED:
 		return "CANCELLED"
+	case DELIVERED:
+		return "DELIVERED"
 	default:
 		return fmt.Sprintf("%d", int(status))
 	}
