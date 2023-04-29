@@ -62,3 +62,7 @@ func (repository *OrderInmemoryRepository) Update(order domain.Order) (*domain.O
 	}
 	return &order, errors.New("order with provided id does not exist")
 }
+
+func (repository *OrderInmemoryRepository) DeleteAll() {
+	orders = []domain.Order{}
+}

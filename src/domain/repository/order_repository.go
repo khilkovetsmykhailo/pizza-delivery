@@ -11,4 +11,5 @@ type OrderRepository interface {
 	CancelOrder(orderId primitive.ObjectID) (*domain.Order, error)
 	GetById(orderId primitive.ObjectID) (*domain.Order, error)
 	Update(order domain.Order) (*domain.Order, error)
+	DeleteAll()
 }

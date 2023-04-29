@@ -62,6 +62,10 @@ func (store *OrderMongoDBStore) Update(order domain.Order) (*domain.Order, error
 	return store.GetById(order.Id)
 }
 
+func (store *OrderMongoDBStore) DeleteAll() {
+	store.orderCollection.DeleteMany(context.TODO(), bson.D{{}})
+}
+
 func (store *OrderMongoDBStore) findOne(filter interface{}) (order *domain.Order, err error) {
 	result := store.orderCollection.FindOne(context.TODO(), filter)
 	err = result.Decode(&order)

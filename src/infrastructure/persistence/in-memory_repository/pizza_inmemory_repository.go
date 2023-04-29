@@ -11,15 +11,15 @@ type PizzaInmemoryRepository struct{}
 
 var pizzaMenu = []*domain.Pizza{
 	{
-		Id:          getObjectId("723b0cc3a34d25d8567f9f82"),
+		Id:          getObjectId("723b0cc3a34d25d8567f9f84"),
 		Name:        "Margarita",
 		Description: "Margarita description",
 		Price:       650.50,
 	},
 	{
-		Id:          getObjectId("723b0cc3a34d25d8567f9f83"),
-		Name:        "Madjarica",
-		Description: "Madjarica description",
+		Id:          getObjectId("723b0cc3a34d25d8567f9f85"),
+		Name:        "Capricciosa",
+		Description: "Capricciosa description",
 		Price:       750.50,
 	},
 }
@@ -57,4 +57,8 @@ func (repository *PizzaInmemoryRepository) GetPizzaByName(pizzaName string) (*do
 		}
 	}
 	return &pizza, errors.New("pizza with provided name does not exist")
+}
+
+func (repository *PizzaInmemoryRepository) DeleteAll() {
+	pizzaMenu = []*domain.Pizza{}
 }

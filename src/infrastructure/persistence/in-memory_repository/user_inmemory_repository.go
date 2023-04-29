@@ -49,6 +49,10 @@ func (repository *UserInmemoryRepository) GetAll() ([]*domain.User, error) {
 	return users, nil
 }
 
+func (repository *UserInmemoryRepository) DeleteAll() {
+	users = []*domain.User{}
+}
+
 func getObjectId(id string) primitive.ObjectID {
 	if objectId, err := primitive.ObjectIDFromHex(id); err == nil {
 		return objectId

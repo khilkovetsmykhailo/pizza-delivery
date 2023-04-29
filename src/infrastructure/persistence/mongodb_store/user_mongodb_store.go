@@ -39,6 +39,10 @@ func (store *UserMongoDBStore) GetAll() ([]*model.User, error) {
 	return store.filterAll(filter)
 }
 
+func (store *UserMongoDBStore) DeleteAll() {
+	store.users.DeleteMany(context.TODO(), bson.D{{}})
+}
+
 func (store *UserMongoDBStore) filterOne(filter interface{}) (user *model.User, err error) {
 	result := store.users.FindOne(context.TODO(), filter)
 	err = result.Decode(&user)

@@ -20,6 +20,21 @@ var Users = []*domain.User{
 	},
 }
 
+var pizzaMenu = []*domain.Pizza{
+	{
+		Id:          getObjectId("723b0cc3a34d25d8567f9f84"),
+		Name:        "Margarita",
+		Description: "Margarita description",
+		Price:       650.50,
+	},
+	{
+		Id:          getObjectId("723b0cc3a34d25d8567f9f85"),
+		Name:        "Capricciosa",
+		Description: "Capricciosa description",
+		Price:       750.50,
+	},
+}
+
 func getObjectId(id string) primitive.ObjectID {
 	if objectId, err := primitive.ObjectIDFromHex(id); err == nil {
 		return objectId

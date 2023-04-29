@@ -7,4 +7,5 @@ type PizzaRepository interface {
 	Insert(pizza *domain.Pizza) ([]*domain.Pizza, error)
 	Delete(pizzaName string) ([]*domain.Pizza, error)
 	GetPizzaByName(name string) (*domain.Pizza, error)
+	DeleteAll()
 }

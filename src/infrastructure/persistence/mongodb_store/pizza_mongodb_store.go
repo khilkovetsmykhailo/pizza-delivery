@@ -49,6 +49,10 @@ func (store *PizzaMongoDBStore) GetPizzaByName(name string) (*model.Pizza, error
 	return store.filterOne(filter)
 }
 
+func (store *PizzaMongoDBStore) DeleteAll() {
+	store.pizzaCollection.DeleteMany(context.TODO(), bson.D{{}})
+}
+
 func (store *PizzaMongoDBStore) filterOne(filter interface{}) (pizza *model.Pizza, err error) {
 	result := store.pizzaCollection.FindOne(context.TODO(), filter)
 	err = result.Decode(&pizza)

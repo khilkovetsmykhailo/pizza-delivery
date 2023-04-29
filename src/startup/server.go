@@ -77,7 +77,15 @@ func (server *Server) initPizzaRepository() repository.PizzaRepository {
 }
 
 func (server *Server) initPizzaMongoDBStore(client *mongo.Client) repository.PizzaRepository {
-	return mongodb_store.NewPizzaMongoDBStore(client)
+	store := mongodb_store.NewPizzaMongoDBStore(client)
+	store.DeleteAll()
+	for _, pizza := range pizzaMenu {
+		_, err := store.Insert(pizza)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	return store
 }
 
 func (server *Server) initPizzaService(orderRepository repository.PizzaRepository) *service.PizzaService {
@@ -89,7 +97,9 @@ func (server *Server) initOrderRepository() repository.OrderRepository {
 }
 
 func (server *Server) initOrderMongoDBStore(client *mongo.Client) repository.OrderRepository {
-	return mongodb_store.NewOrderMongoDBStore(client)
+	store := mongodb_store.NewOrderMongoDBStore(client)
+	store.DeleteAll()
+	return store
 }
 
 func (server *Server) initOrderService(orderRepository repository.OrderRepository, pizzaService *service.PizzaService) *service.OrderService {
@@ -101,7 +111,15 @@ func (server *Server) initUserRepository() repository.UserRepository {
 }
 
 func (server *Server) initUserMongoDBStore(client *mongo.Client) repository.UserRepository {
-	return mongodb_store.NewUsersMongoDBStore(client)
+	store := mongodb_store.NewUsersMongoDBStore(client)
+	store.DeleteAll()
+	for _, user := range Users {
+		_, err := store.Save(user)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	return store
 }
 
 func (server *Server) initUserService(userRepository repository.UserRepository) *service.UserService {
