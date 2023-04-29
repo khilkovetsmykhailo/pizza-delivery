@@ -12,10 +12,10 @@ type User struct {
 }
 
 type Pizza struct {
-	Id          int     `json:"id""`
-	Name        string  `json:"name",validate:"required,max=32"`
-	Description string  `json:"description"`
-	Price       float32 `json:"price",validate:"required,numeric"`
+	Id          primitive.ObjectID `bson:"_id",json:"id""`
+	Name        string             `bson:"name",json:"name",validate:"required,max=32"`
+	Description string             `bson:"description",json:"description"`
+	Price       float32            `bson:"price",json:"price",validate:"required,numeric"`
 }
 
 type Order struct {

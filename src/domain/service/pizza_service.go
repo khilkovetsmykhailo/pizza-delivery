@@ -19,46 +19,44 @@ func NewPizzaService(pizzaRepository repository.PizzaRepository) *PizzaService {
 	}
 }
 
-func (service *PizzaService) ListMenu() ([]model.Pizza, error) {
-	menu, err := service.pizzaRepository.GetMenu()
+func (service *PizzaService) ListMenu() ([]*model.Pizza, error) {
+	menu, err := service.pizzaRepository.GetAll()
 	if err != nil {
 		fmt.Println(err)
 	}
 	return menu, nil
 }
 
-func (service *PizzaService) AddPizzaToMenu(pizzaDto dto.PizzaDto) ([]model.Pizza, error) {
+func (service *PizzaService) AddPizzaToMenu(pizzaDto dto.PizzaDto) ([]*model.Pizza, error) {
 	pizza := mapper.MapPizzaToDomain(pizzaDto)
-	menu, err := service.pizzaRepository.AddPizzaToMenu(pizza)
+	menu, err := service.pizzaRepository.Insert(&pizza)
 	if err != nil {
 		fmt.Println(err)
 	}
 	return menu, err
 }
 
-func (service *PizzaService) DeletePizzaFromMenu(pizzaName string) ([]model.Pizza, error) {
+func (service *PizzaService) DeletePizzaFromMenu(pizzaName string) ([]*model.Pizza, error) {
 	if pizzaExists := service.checkIfPizzaExists(pizzaName); !pizzaExists {
-		return []model.Pizza{}, errors.New("pizza with provided name does not exist")
+		return nil, errors.New("pizza with provided name does not exist")
 	}
-	menu, err := service.pizzaRepository.DeletePizzaFromMenu(pizzaName)
+	menu, err := service.pizzaRepository.Delete(pizzaName)
 	if err != nil {
 		fmt.Println(err)
-		return []model.Pizza{}, err
 	}
 	return menu, nil
 }
 
-func (service *PizzaService) GetPizzaByName(pizzaName string) (model.Pizza, error) {
-	pizza, err := service.pizzaRepository.FindPizzaByName(pizzaName)
+func (service *PizzaService) GetPizzaByName(pizzaName string) (*model.Pizza, error) {
+	pizza, err := service.pizzaRepository.GetPizzaByName(pizzaName)
 	if err != nil {
 		fmt.Println(err)
-		return model.Pizza{}, err
 	}
 	return pizza, nil
 }
 
 func (service *PizzaService) checkIfPizzaExists(pizzaName string) bool {
-	_, err := service.pizzaRepository.FindPizzaByName(pizzaName)
+	_, err := service.pizzaRepository.GetPizzaByName(pizzaName)
 	if err != nil {
 		fmt.Println(err)
 		return false

@@ -26,7 +26,8 @@ func NewServer(config *config2.Config) *Server {
 func (server *Server) Start() {
 	mongoClient := server.initMongoClient()
 
-	pizzaRepository := server.initPizzaRepository()
+	//pizzaRepository := server.initPizzaRepository()
+	pizzaRepository := server.initPizzaMongoDBStore(mongoClient)
 	pizzaService := server.initPizzaService(pizzaRepository)
 	pizzaHandler := api.NewPizzaController(pizzaService)
 
@@ -74,6 +75,10 @@ func (server *Server) initPizzaRepository() repository.PizzaRepository {
 	return in_memory_repository.NewOrderInMemoryRepository()
 }
 
+func (server *Server) initPizzaMongoDBStore(client *mongo.Client) repository.PizzaRepository {
+	return mongodb_store.NewPizzaMongoDBStore(client)
+}
+
 func (server *Server) initPizzaService(orderRepository repository.PizzaRepository) *service.PizzaService {
 	return service.NewPizzaService(orderRepository)
 }
@@ -91,8 +96,7 @@ func (server *Server) initUserRepository() repository.UserRepository {
 }
 
 func (server *Server) initUserMongoDBStore(client *mongo.Client) repository.UserRepository {
-	store := mongodb_store.NewUsersMongoDBStore(client)
-	return store
+	return mongodb_store.NewUsersMongoDBStore(client)
 }
 
 func (server *Server) initUserService(userRepository repository.UserRepository) *service.UserService {

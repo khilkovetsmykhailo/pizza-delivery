@@ -3,7 +3,7 @@ package mongodb_store
 import (
 	"context"
 	model "github.com/marijakljestan/golang-web-app/src/domain/model"
-	domain "github.com/marijakljestan/golang-web-app/src/domain/repository"
+	repository "github.com/marijakljestan/golang-web-app/src/domain/repository"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,10 +13,10 @@ type UserMongoDBStore struct {
 	users *mongo.Collection
 }
 
-func NewUsersMongoDBStore(client *mongo.Client) domain.UserRepository {
-	users := client.Database("pizza-delivery-app").Collection("users")
+func NewUsersMongoDBStore(client *mongo.Client) repository.UserRepository {
+	userCollection := client.Database("pizza-delivery-app").Collection("users")
 	return &UserMongoDBStore{
-		users: users,
+		users: userCollection,
 	}
 }
 
@@ -52,10 +52,10 @@ func (store *UserMongoDBStore) filterAll(filter interface{}) ([]*model.User, err
 	if err != nil {
 		return nil, err
 	}
-	return decode(cursor)
+	return decodeUser(cursor)
 }
 
-func decode(cursor *mongo.Cursor) (users []*model.User, err error) {
+func decodeUser(cursor *mongo.Cursor) (users []*model.User, err error) {
 	for cursor.Next(context.TODO()) {
 		var user model.User
 		err = cursor.Decode(&user)
