@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/marijakljestan/golang-web-app/server/api/dto"
-	"github.com/marijakljestan/golang-web-app/server/domain/mapper"
 	model "github.com/marijakljestan/golang-web-app/server/domain/model"
 	repository "github.com/marijakljestan/golang-web-app/server/domain/repository"
+	"github.com/marijakljestan/golang-web-app/server/helper/mapper"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
@@ -59,14 +59,14 @@ func (service *OrderService) CreateOrder(orderDto dto.OrderDto) (model.Order, er
 
 func (service *OrderService) initializeAndSaveOrder(orderDto dto.OrderDto) (*model.Order, error) {
 	order := mapper.MapOrderToDomain(orderDto)
-	var orderPriceTotal float32
+	var orderPriceTotal float64
 	for _, v := range order.Items {
 		pizza, err := service.pizzaService.GetPizzaByName(v.PizzaName)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
 		}
-		orderPriceTotal += (*pizza).Price * float32(v.Quantity)
+		orderPriceTotal += (*pizza).Price * float64(v.Quantity)
 	}
 	order.Price = orderPriceTotal
 	order.Status = model.IN_PREPARATION

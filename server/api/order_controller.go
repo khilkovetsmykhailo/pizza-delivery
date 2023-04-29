@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/marijakljestan/golang-web-app/server/api/dto"
 	"github.com/marijakljestan/golang-web-app/server/domain/service"
+	"github.com/marijakljestan/golang-web-app/server/helper/mapper"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 )
@@ -27,12 +28,13 @@ func (handler *OrderController) CreateOrder(ctx *gin.Context) {
 
 	orderDto.CustomerUsername = ctx.GetString("username")
 	order, err := handler.orderService.CreateOrder(orderDto)
+	createdOrderDto := mapper.MapOrderFromDomain(order)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"order": order})
+	ctx.JSON(http.StatusCreated, gin.H{"order": createdOrderDto})
 }
 
 func (handler *OrderController) CheckOrderStatus(ctx *gin.Context) {
@@ -62,7 +64,8 @@ func (handler *OrderController) CancelOrder(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Order can't  be cancelled"})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"order": order})
+	orderDto := mapper.MapOrderFromDomain(order)
+	ctx.JSON(http.StatusOK, gin.H{"order": orderDto})
 }
 
 func (handler *OrderController) CancelOrderRegardlessStatus(ctx *gin.Context) {
@@ -77,5 +80,5 @@ func (handler *OrderController) CancelOrderRegardlessStatus(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"order": order})
+	ctx.JSON(http.StatusOK, gin.H{"order": mapper.MapOrderFromDomain(order)})
 }

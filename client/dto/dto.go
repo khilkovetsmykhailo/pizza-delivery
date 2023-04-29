@@ -1,7 +1,5 @@
 package dto
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
-
 type Pizza struct {
 	Name        string  `json:"name",validate:"required,max=32"`
 	Description string  `json:"description"`
@@ -9,11 +7,11 @@ type Pizza struct {
 }
 
 type Order struct {
-	Id               primitive.ObjectID `json:"id"`
-	CustomerUsername string             `json:"customer_username"`
-	Status           int                `json:"status"`
-	Price            float64            `json:"price"`
-	Items            []OrderItem        `json:"items"`
+	Id               string      `json:"id"`
+	CustomerUsername string      `json:"customer_username"`
+	Status           string      `json:"status"`
+	Price            float64     `json:"price"`
+	Items            []OrderItem `json:"items"`
 }
 
 type OrderItem struct {

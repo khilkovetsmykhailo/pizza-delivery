@@ -3,12 +3,14 @@ package dto
 type PizzaDto struct {
 	Name        string  `json:"name",validate:"required,max=32"`
 	Description string  `json:"description"`
-	Price       float32 `json:"price",validate:"required,numeric"`
+	Price       float64 `json:"price",validate:"required,numeric"`
 }
 
 type OrderDto struct {
+	Id               string         `json:"id"`
 	CustomerUsername string         `json:"customer_username"`
-	Price            float32        `json:"price"`
+	Price            float64        `json:"price"`
+	Status           string         `json:"status"`
 	Items            []OrderItemDto `json:"items"`
 }
 

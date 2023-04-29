@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/marijakljestan/golang-web-app/server/api/dto"
-	"github.com/marijakljestan/golang-web-app/server/domain/mapper"
 	domain "github.com/marijakljestan/golang-web-app/server/domain/model"
 	repository "github.com/marijakljestan/golang-web-app/server/domain/repository"
+	"github.com/marijakljestan/golang-web-app/server/helper/mapper"
 	utils "github.com/marijakljestan/golang-web-app/server/util"
 )
 

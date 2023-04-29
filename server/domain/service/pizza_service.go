@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/marijakljestan/golang-web-app/server/api/dto"
-	"github.com/marijakljestan/golang-web-app/server/domain/mapper"
 	model "github.com/marijakljestan/golang-web-app/server/domain/model"
 	repository "github.com/marijakljestan/golang-web-app/server/domain/repository"
+	"github.com/marijakljestan/golang-web-app/server/helper/mapper"
 )
 
 type PizzaService struct {
