@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/marijakljestan/golang-web-app/src/api/dto"
 	"github.com/marijakljestan/golang-web-app/src/domain/service"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
-	"strconv"
 )
 
 type OrderController struct {
@@ -36,11 +36,12 @@ func (handler *OrderController) CreateOrder(ctx *gin.Context) {
 }
 
 func (handler *OrderController) CheckOrderStatus(ctx *gin.Context) {
-	orderId, convErr := strconv.Atoi(ctx.Param("id"))
+	orderId, convErr := primitive.ObjectIDFromHex(ctx.Param("id"))
 	if convErr != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order id provided!"})
 		return
 	}
+
 	orderStatus, err := handler.orderService.CheckOrderStatus(orderId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order id provided!"})
@@ -50,7 +51,7 @@ func (handler *OrderController) CheckOrderStatus(ctx *gin.Context) {
 }
 
 func (handler *OrderController) CancelOrder(ctx *gin.Context) {
-	orderId, convErr := strconv.Atoi(ctx.Param("id"))
+	orderId, convErr := primitive.ObjectIDFromHex(ctx.Param("id"))
 	if convErr != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order id provided!"})
 		return
@@ -65,7 +66,7 @@ func (handler *OrderController) CancelOrder(ctx *gin.Context) {
 }
 
 func (handler *OrderController) CancelOrderRegardlessStatus(ctx *gin.Context) {
-	orderId, convErr := strconv.Atoi(ctx.Param("id"))
+	orderId, convErr := primitive.ObjectIDFromHex(ctx.Param("id"))
 	if convErr != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order id provided!"})
 		return

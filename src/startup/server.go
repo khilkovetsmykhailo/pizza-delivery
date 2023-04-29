@@ -31,7 +31,8 @@ func (server *Server) Start() {
 	pizzaService := server.initPizzaService(pizzaRepository)
 	pizzaHandler := api.NewPizzaController(pizzaService)
 
-	orderRepository := server.initOrderRepository()
+	//orderRepository := server.initOrderRepository()
+	orderRepository := server.initOrderMongoDBStore(mongoClient)
 	orderService := server.initOrderService(orderRepository, pizzaService)
 	orderHandler := api.NewOrderController(orderService)
 
@@ -85,6 +86,10 @@ func (server *Server) initPizzaService(orderRepository repository.PizzaRepositor
 
 func (server *Server) initOrderRepository() repository.OrderRepository {
 	return in_memory_repository.NewOrderInmemoryRepository()
+}
+
+func (server *Server) initOrderMongoDBStore(client *mongo.Client) repository.OrderRepository {
+	return mongodb_store.NewOrderMongoDBStore(client)
 }
 
 func (server *Server) initOrderService(orderRepository repository.OrderRepository, pizzaService *service.PizzaService) *service.OrderService {

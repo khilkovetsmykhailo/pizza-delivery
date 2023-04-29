@@ -19,15 +19,14 @@ type Pizza struct {
 }
 
 type Order struct {
-	Id               int         `json:"id"`
-	CustomerUsername string      `json:"customer_username"`
-	Status           OrderStatus `json:"status"`
-	Price            float32     `json:"price"`
-	Items            []OrderItem `json:"items"`
+	Id               primitive.ObjectID `bson:"_id",json:"id"`
+	CustomerUsername string             `bson:"customer_username",json:"customer_username"`
+	Status           OrderStatus        `bson:"status",json:"status"`
+	Price            float32            `bson:"price",json:"price"`
+	Items            []OrderItem        `bson:"items",json:"items"`
 }
 
 type OrderItem struct {
-	Id        int    `json:"id"`
-	PizzaName string `json:"pizza_name",validate:"required"`
-	Quantity  int    `json:"quantity",validate:"required,numeric"`
+	PizzaName string `bson:"pizza_name",json:"pizza_name",validate:"required"`
+	Quantity  int    `bson:"quantity",json:"quantity",validate:"required,numeric"`
 }
