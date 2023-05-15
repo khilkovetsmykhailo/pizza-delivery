@@ -7,9 +7,9 @@ type Pizza struct {
 }
 
 type Order struct {
-	Id               int         `json:"id"`
+	Id               string      `json:"id"`
 	CustomerUsername string      `json:"customer_username"`
-	Status           int         `json:"status"`
+	Status           string      `json:"status"`
 	Price            float64     `json:"price"`
 	Items            []OrderItem `json:"items"`
 }

@@ -1,0 +1,43 @@
+version: "3.3"
+
+services:
+  client_app:
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile
+    environment:
+      SERVER_URL: http://${SERVER_HOST}:${SERVER_PORT}
+    stdin_open: true
+    tty: true
+    restart: always
+    depends_on:
+      - server_app
+
+  server_app:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+    restart: on-failure
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+
+  mongo-express:
+    image:  mongo-express
+    restart: always
+    ports:
+      - "8083:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://${DB_HOST}:${DB_PORT}/
